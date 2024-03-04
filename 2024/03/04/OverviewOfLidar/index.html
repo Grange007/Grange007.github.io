@@ -1,0 +1,660 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 6.3.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/avatar.jpg">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/avatar.jpg">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"grange007.github.io","root":"/","scheme":"Gemini","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}}};
+  </script>
+
+  <meta name="description" content="LiDAR: Light Detection and Ranging Radar: Radio Detection and Ranging Lidar工作原理 两组关键量：  激光的方向 测得的距离  测量与计算方式  飞行时间法(TOF, Pulsed Time of Flight)  单个光脉冲    调幅连续波(AMCW, amplitude modulated continuous wav">
+<meta property="og:type" content="article">
+<meta property="og:title" content="OverView of Lidar">
+<meta property="og:url" content="https://grange007.github.io/2024/03/04/OverviewOfLidar/index.html">
+<meta property="og:site_name" content="Grange&#39;s blog">
+<meta property="og:description" content="LiDAR: Light Detection and Ranging Radar: Radio Detection and Ranging Lidar工作原理 两组关键量：  激光的方向 测得的距离  测量与计算方式  飞行时间法(TOF, Pulsed Time of Flight)  单个光脉冲    调幅连续波(AMCW, amplitude modulated continuous wav">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://blog.generationrobots.com/wp-content/uploads/2019/08/what-is-a-lidar-part-1-9.jpg">
+<meta property="og:image" content="https://miro.medium.com/v2/resize:fit:1050/0*7uXUGt0K3jLuJAKc">
+<meta property="og:image" content="https://miro.medium.com/v2/resize:fit:1050/0*bkhv-UIWz-bEccVU">
+<meta property="og:image" content="https://miro.medium.com/v2/resize:fit:1050/0*-Lpl5PSxKyZGPPcw">
+<meta property="og:image" content="https://spectrum.ieee.org/media-library/image.jpg?id=25582093">
+<meta property="og:image" content="https://file.vogel.com.cn/125/upload/resources/image/366896.gif?x-oss-process=image/resize,w_700,h_700">
+<meta property="og:image" content="https://file.vogel.com.cn/125/upload/resources/image/366897.gif?x-oss-process=image/resize,w_700,h_700">
+<meta property="og:image" content="https://file.vogel.com.cn/125/upload/resources/image/366898.gif?x-oss-process=image/resize,w_700,h_700">
+<meta property="og:image" content="https://upload.wikimedia.org/wikipedia/commons/thumb/4/4a/Phased_array_animation_with_arrow_10frames_371x400px_100ms.gif/330px-Phased_array_animation_with_arrow_10frames_371x400px_100ms.gif">
+<meta property="og:image" content="https://pic3.zhimg.com/80/v2-a5c2156041b0791363ab787ee6d03162_720w.webp">
+<meta property="og:image" content="https://www.researchgate.net/profile/Suddhasheel-Ghosh/publication/261333968/figure/fig3/AS:667860351328267@1536241724587/LiDAR-vs-Flash-LiDAR-technologies-Courtesy-wwwfosternavnet.jpg">
+<meta property="og:image" content="https://www.generationrobots.com/blog/wp-content/uploads/2019/08/what-is-a-lidar-part-1-7.jpg">
+<meta property="og:image" content="https://www.generationrobots.com/blog/wp-content/uploads/2019/08/what-is-a-lidar-part-1-8.jpg">
+<meta property="og:image" content="https://www.generationrobots.com/blog/wp-content/uploads/2019/08/what-is-a-lidar-part-1-6.jpg">
+<meta property="og:image" content="https://velodynelidar.com/wp-content/uploads/2021/03/Lidar-Wavelengths-Comparison-905-nm-vs-1550-nm-Velodyne-Lidar-01-1536x808.jpg">
+<meta property="og:image" content="https://www.livoxtech.com/dps/ba737ccbcf6b6b1a731df04fdb24783f.png">
+<meta property="og:image" content="c:\Users\86138\AppData\Roaming\Typora\typora-user-images\image-20230924124405603.png">
+<meta property="og:image" content="c:\Users\86138\AppData\Roaming\Typora\typora-user-images\image-20230921181441600.png">
+<meta property="og:image" content="https://upload.wikimedia.org/wikipedia/commons/thumb/5/5d/32bit-Endianess.svg/600px-32bit-Endianess.svg.png">
+<meta property="article:published_time" content="2024-03-04T15:41:40.000Z">
+<meta property="article:modified_time" content="2024-03-04T15:44:35.763Z">
+<meta property="article:author" content="Grange">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://blog.generationrobots.com/wp-content/uploads/2019/08/what-is-a-lidar-part-1-9.jpg">
+
+<link rel="canonical" href="https://grange007.github.io/2024/03/04/OverviewOfLidar/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-CN'
+  };
+</script>
+
+  <title>OverView of Lidar | Grange's blog</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">Grange's blog</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-about">
+
+    <a href="/about/" rel="section"><i class="fa fa-user fa-fw"></i>关于</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签</a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档</a>
+
+  </li>
+        <li class="menu-item menu-item-gulang">
+
+    <a href="/GuLang/" rel="section"><i class="fa fa-heartbeat fa-fw"></i>GuLang</a>
+
+  </li>
+  </ul>
+</nav>
+
+
+
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://grange007.github.io/2024/03/04/OverviewOfLidar/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.jpg">
+      <meta itemprop="name" content="Grange">
+      <meta itemprop="description" content="A Duck Watcher In Tsinghua University">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Grange's blog">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          OverView of Lidar
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+              
+
+              <time title="创建时间：2024-03-04 23:41:40 / 修改时间：23:44:35" itemprop="dateCreated datePublished" datetime="2024-03-04T23:41:40+08:00">2024-03-04</time>
+            </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <p>LiDAR: Light Detection and Ranging</p>
+<p>Radar: Radio Detection and Ranging</p>
+<h3 id="Lidar工作原理"><a href="#Lidar工作原理" class="headerlink" title="Lidar工作原理"></a>Lidar工作原理</h3><p><img src="https://blog.generationrobots.com/wp-content/uploads/2019/08/what-is-a-lidar-part-1-9.jpg" alt="LiDAR physics principles"></p>
+<p>两组关键量：</p>
+<ol>
+<li>激光的方向</li>
+<li>测得的距离</li>
+</ol>
+<p>测量与计算方式</p>
+<ol>
+<li><p>飞行时间法(TOF, Pulsed Time of Flight)</p>
+<ul>
+<li>单个光脉冲</li>
+</ul>
+<p><img src="https://miro.medium.com/v2/resize:fit:1050/0*7uXUGt0K3jLuJAKc" alt="img"></p>
+</li>
+<li><p>调幅连续波(AMCW, amplitude modulated continuous waveform laser )</p>
+<ul>
+<li><p>连续光波，检测相位差</p>
+</li>
+<li><p>可认为属于TOF</p>
+</li>
+</ul>
+<p><img src="https://miro.medium.com/v2/resize:fit:1050/0*bkhv-UIWz-bEccVU" alt="img"></p>
+</li>
+<li><p>调频连续波(FMCW, frequency modulated continuous wave)</p>
+<p><img src="https://miro.medium.com/v2/resize:fit:1050/0*-Lpl5PSxKyZGPPcw" alt="img"></p>
+</li>
+</ol>
+<ul>
+<li>发射一束连续的光束，频率随时间稳定地发生变化。由于源光束的频率在不断变化，光束传输距离的差异会导致频率的差异，将回波信号与本振信号混频并经低通滤波后，得到的差频信号是光束往返时间的函数。</li>
+<li>通过频率差值算出与物体的距离</li>
+<li>通过多普勒效应算出物体的速度</li>
+<li>毫米波雷达的主要原理</li>
+</ul>
+<h3 id="Lidar功能特点"><a href="#Lidar功能特点" class="headerlink" title="Lidar功能特点"></a>Lidar功能特点</h3><h4 id="优势"><a href="#优势" class="headerlink" title="优势"></a>优势</h4><ol>
+<li>数据采集速度快且准确度高</li>
+<li>得益于主动照明传感器，LiDAR 技术可以在白天或黑暗中使用</li>
+<li>可用于收集有关无法到达的地方的数据</li>
+<li>便于收集大片地形数据（机载雷达）</li>
+</ol>
+<h4 id="劣势"><a href="#劣势" class="headerlink" title="劣势"></a>劣势</h4><ol>
+<li>如果环境有雾或烟雾或透明障碍物，如大雨、低空云层，可能会干扰雷达的使用</li>
+<li>分析收集的大量数据可能会消耗时间和资源</li>
+<li>某些激光雷达使用的强大激光束可能会损害人眼</li>
+<li>难以穿透高密度物质</li>
+</ol>
+<h3 id="Lidar类别"><a href="#Lidar类别" class="headerlink" title="Lidar类别"></a>Lidar类别</h3><h4 id="结构"><a href="#结构" class="headerlink" title="结构"></a>结构</h4><h5 id="机械式"><a href="#机械式" class="headerlink" title="机械式"></a>机械式</h5><p><img src="https://spectrum.ieee.org/media-library/image.jpg?id=25582093" alt="Velodyne Says It&#39;s Got a &quot;Breakthrough&quot; in Solid State Lidar Design - IEEE  Spectrum"></p>
+<p><a target="_blank" rel="noopener" href="https://www.youtube.com/watch?v=bUVtT7Gp2Z4">机械式Lidar</a></p>
+<h5 id="混合固态式（较主流）"><a href="#混合固态式（较主流）" class="headerlink" title="混合固态式（较主流）"></a>混合固态式（较主流）</h5><ol>
+<li>MEMS(Microelectromechanical Systems，微机电系统)</li>
+</ol>
+<p><img src="https://file.vogel.com.cn/125/upload/resources/image/366896.gif?x-oss-process=image/resize,w_700,h_700" alt="img"></p>
+<ol start="2">
+<li><p>二维转镜</p>
+<ol>
+<li>二维扫描</li>
+</ol>
+</li>
+</ol>
+<p><img src="https://file.vogel.com.cn/125/upload/resources/image/366897.gif?x-oss-process=image/resize,w_700,h_700" alt="img"></p>
+<ol start="2">
+<li>一维扫描</li>
+</ol>
+<p><img src="https://file.vogel.com.cn/125/upload/resources/image/366898.gif?x-oss-process=image/resize,w_700,h_700" alt="img"></p>
+<h5 id="固态式（未来发展）"><a href="#固态式（未来发展）" class="headerlink" title="固态式（未来发展）"></a>固态式（未来发展）</h5><ol>
+<li><p>相控阵(OPA)</p>
+<p>在相控阵中，来自发射器的功率通过称为移相器的设备馈送到辐射元件，该设备由计算机系统控制，可以电子方式改变相位或信号延迟，从而将无线电波束转向不同的方向。</p>
+<p><img src="https://upload.wikimedia.org/wikipedia/commons/thumb/4/4a/Phased_array_animation_with_arrow_10frames_371x400px_100ms.gif/330px-Phased_array_animation_with_arrow_10frames_371x400px_100ms.gif" alt="img"></p>
+<p>一束光经过光分束器分为多路光信号。在各路光信号附加相位差之后(以各路光信号赋予均匀的相位差为例，第二个波导与第一个波导的相位差为ΔϕB，第三个波导与第一个波导的相位差为2ΔϕB，以此类推)，此时的等相位面不再垂直于波导方向，而是有了一定的偏转，满足等相位关系的波束会相干相长，不满足等相位条件的光束就会相互抵消，故光束的指向总是垂直于等相位面。</p>
+</li>
+</ol>
+<p><img src="https://pic3.zhimg.com/80/v2-a5c2156041b0791363ab787ee6d03162_720w.webp" alt="img"></p>
+<ol start="2">
+<li><p>泛光面阵(FLASH)</p>
+<p>Flash 激光雷达在短时间直接发射出一大片覆盖探测区域的激光，再以高度灵敏的接收器，来完成对环境周围图像的绘制。</p>
+</li>
+</ol>
+<p><img src="https://www.researchgate.net/profile/Suddhasheel-Ghosh/publication/261333968/figure/fig3/AS:667860351328267@1536241724587/LiDAR-vs-Flash-LiDAR-technologies-Courtesy-wwwfosternavnet.jpg" alt="img"></p>
+<h4 id="维度"><a href="#维度" class="headerlink" title="维度"></a>维度</h4><ul>
+<li>1D</li>
+</ul>
+<img src="https://www.generationrobots.com/blog/wp-content/uploads/2019/08/what-is-a-lidar-part-1-7.jpg" alt="img" style="zoom:80%;" />
+
+<ul>
+<li><p>2D</p>
+<p>一道旋转激光</p>
+</li>
+</ul>
+<img src="https://www.generationrobots.com/blog/wp-content/uploads/2019/08/what-is-a-lidar-part-1-8.jpg" alt="img" style="zoom:80%;" />
+
+<ul>
+<li><p>3D</p>
+<p>多道旋转激光</p>
+</li>
+</ul>
+<img src="https://www.generationrobots.com/blog/wp-content/uploads/2019/08/what-is-a-lidar-part-1-6.jpg" alt="img" style="zoom:80%;" />
+
+
+
+<h4 id="使用场景"><a href="#使用场景" class="headerlink" title="使用场景"></a>使用场景</h4><ul>
+<li>室内</li>
+<li>室外<ul>
+<li>阳光产生的干扰</li>
+<li>雨雪对透光度的影响</li>
+<li>室外温度影响</li>
+</ul>
+</li>
+</ul>
+<h3 id="Lidar参数"><a href="#Lidar参数" class="headerlink" title="Lidar参数"></a>Lidar参数</h3><h4 id="波长"><a href="#波长" class="headerlink" title="波长"></a>波长</h4><p>常见车载雷达使用波长：</p>
+<ul>
+<li><p>905nm </p>
+<ul>
+<li>器件相对成熟，成本较低</li>
+<li>考虑到人眼安全要求，激光功率受到明显限制</li>
+<li>太阳光中存在较多近红外背景光，传感器信噪比物理上受限，最大探测距离限制在150米左右</li>
+<li>穿透力更强，能够应对复杂环境情况</li>
+</ul>
+</li>
+<li><p>1550nm</p>
+<ul>
+<li>同等功率的1550 nm激光人眼安全性提高40倍</li>
+<li>背景光干扰问题相对较小，可以实现远距离探测</li>
+<li>探测器只对自身发射的激光回波响应，信噪比远高于905nm-ToF激光雷达，最大探测距离可以达到1000米以上</li>
+<li>1550 nm配合调频连续波(FMCW)的技术，不仅可以检测距离，同时可以利用多普勒频移来测量物体的速度</li>
+</ul>
+<p><img src="https://velodynelidar.com/wp-content/uploads/2021/03/Lidar-Wavelengths-Comparison-905-nm-vs-1550-nm-Velodyne-Lidar-01-1536x808.jpg" alt="img"></p>
+</li>
+</ul>
+<h4 id="测距能力"><a href="#测距能力" class="headerlink" title="测距能力"></a>测距能力</h4><p>在车载lidar的表征上经常会通过10%反射率板标注最远测距距离，表达形式如XXm@10% reflectivity的测距能力。测距距离越长表明在系统中接触到物体的时间越早，留给系统判断和决策的时间越长</p>
+<blockquote>
+<p>反射率（reflectivity），是材料表面反射辐射能的有效性。它是在边界处反射电磁功率与入射电磁功率的比值。</p>
+</blockquote>
+<blockquote>
+<p>勒克斯（Lux，通常简写为<strong>lx</strong>）是一个标识照度的国际单位制单位，1流明每平方米面积，就是1勒克斯。</p>
+</blockquote>
+<h4 id="测距精度"><a href="#测距精度" class="headerlink" title="测距精度"></a>测距精度</h4><p>测距精度主要表征lidar测量物体时数据的一致性。精度越高表示误差越小，每一次获取到的数值更为一致。</p>
+<p>例如：＜2cm （1σ@20m）即表示在20m测量位置，在1σ（标准差）的概率下，每次测量的误差值小于2cm。</p>
+<h4 id="视场角-FOV-Field-of-View"><a href="#视场角-FOV-Field-of-View" class="headerlink" title="视场角(FOV, Field of View)"></a>视场角(FOV, Field of View)</h4><p>分为水平视场角，垂直视场角。表示lidar前方能扫描到的区域。视场角越大则扫描范围越大。</p>
+<h4 id="角分辨率"><a href="#角分辨率" class="headerlink" title="角分辨率"></a>角分辨率</h4><p>两点之间的角度间隔（水平与竖直）。间隔越小对物体细节表现越细致。若有开发ROI功能，角分辨率会更小。</p>
+<h4 id="帧率"><a href="#帧率" class="headerlink" title="帧率"></a>帧率</h4><p>lidar每秒传递的帧数，每一帧都是完整的一轮扫描结果，以Hz为单位，通常为5、10、20Hz </p>
+<h4 id="点频"><a href="#点频" class="headerlink" title="点频"></a>点频</h4><p>lidar扫描1s的总探测点数（点&#x2F;秒）</p>
+<p>$单帧点数 * 帧率数值 &#x3D; 点频$</p>
+<h4 id="盲区"><a href="#盲区" class="headerlink" title="盲区"></a>盲区</h4><p>考虑雷达盒体内的光束探测反馈（玻璃片前导信号及其他反馈信号）可能会使得近距离的探测精度大幅度下降使得数据没有意义，所以会存在直接舍去近距离点云的部分数据，这部分会被划定为盲区。</p>
+<ul>
+<li>补盲雷达：专门负责检测近处物体</li>
+</ul>
+<blockquote>
+<p>[2] 若目标物体距离 0.1 m 至 0.2 m，激光探测测距仪可探测并输出点云数据，但由于无法保证探测精度，此数据仅供参考。</p>
+</blockquote>
+<h4 id="人眼安全级别-Laser-class"><a href="#人眼安全级别-Laser-class" class="headerlink" title="人眼安全级别(Laser class)"></a>人眼安全级别(Laser class)</h4><p>几乎所有激光雷达扫描仪都属于激光等级1，这是最安全的级别。它表示扫描仪是完全无害的，你可以在眼睛没有任何保护措施的情况下直视它，而不会受到任何负面影响。</p>
+<h4 id="防护等级"><a href="#防护等级" class="headerlink" title="防护等级"></a>防护等级</h4><p>IP等级的第一位数字代表其抗尘性，第二个数字是其抗液性 (IP67)</p>
+<h4 id="功率"><a href="#功率" class="headerlink" title="功率"></a>功率</h4><p>雷达发热情况</p>
+<h4 id="IMU"><a href="#IMU" class="headerlink" title="IMU"></a>IMU</h4><p>使用IMU更新Lidar的朝向</p>
+<h3 id="Tinker使用的Lidar——Livox-Mid-360"><a href="#Tinker使用的Lidar——Livox-Mid-360" class="headerlink" title="Tinker使用的Lidar——Livox Mid 360"></a>Tinker使用的Lidar——Livox Mid 360</h3><p>业界首款 360° 混合固态激光雷达</p>
+<p>￥3999</p>
+<p><img src="https://www.livoxtech.com/dps/ba737ccbcf6b6b1a731df04fdb24783f.png" alt="觅道  Mid-360"></p>
+<p><img src="C:\Users\86138\AppData\Roaming\Typora\typora-user-images\image-20230924124405603.png" alt="image-20230924124405603"></p>
+<p><img src="C:\Users\86138\AppData\Roaming\Typora\typora-user-images\image-20230921181441600.png" alt="image-20230921181441600"></p>
+<h3 id="LiDAR数据处理"><a href="#LiDAR数据处理" class="headerlink" title="LiDAR数据处理"></a>LiDAR数据处理</h3><h4 id="PointCloud"><a href="#PointCloud" class="headerlink" title="PointCloud"></a>PointCloud</h4><p>sensor_msgs&#x2F;PointCloud</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"># This message holds a collection of <span class="number">3</span>d points, plus optional additional</span><br><span class="line"><span class="meta"># information about each point.</span></span><br><span class="line"></span><br><span class="line"># Time of sensor data acquisition, coordinate frame ID.</span><br><span class="line">Header header</span><br><span class="line"></span><br><span class="line"># Array of <span class="number">3</span>d points. Each Point32 should be interpreted as a <span class="number">3</span>d point</span><br><span class="line"><span class="meta"># in the frame given in the header.</span></span><br><span class="line">geometry_msgs/Point32[] points</span><br><span class="line"></span><br><span class="line"># Each channel should have the same number of elements as points array,</span><br><span class="line"><span class="meta"># and the data in each channel should correspond 1:1 with each point.</span></span><br><span class="line"># Channel names in common practice are listed in ChannelFloat32.msg.</span><br><span class="line">ChannelFloat32[] channels</span><br></pre></td></tr></table></figure>
+
+
+
+<p>sensor_msgs&#x2F;ChannelFloat32</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><span class="line"># This message is used by the PointCloud message to hold optional data</span><br><span class="line"><span class="meta"># associated with each point in the cloud. The length of the values</span></span><br><span class="line"><span class="meta"># array should be the same as the length of the points array in the</span></span><br><span class="line"># PointCloud, <span class="keyword">and</span> each value should be associated with the corresponding</span><br><span class="line"><span class="meta"># point.</span></span><br><span class="line"></span><br><span class="line"># Channel names in existing practice include:</span><br><span class="line">#   <span class="string">&quot;u&quot;</span>, <span class="string">&quot;v&quot;</span> - <span class="function">row <span class="keyword">and</span> <span class="title">column</span> <span class="params">(respectively)</span> in the left stereo image.</span></span><br><span class="line"><span class="function">#              This is opposite to usual conventions but remains <span class="keyword">for</span></span></span><br><span class="line"><span class="function"><span class="meta">#              historical reasons. The newer PointCloud2 message has no</span></span></span><br><span class="line"><span class="function"><span class="meta">#              such problem.</span></span></span><br><span class="line"><span class="function">#   &quot;rgb&quot; - For point clouds produced by color stereo cameras. uint8</span></span><br><span class="line"><span class="function">#           <span class="params">(R,G,B)</span> values packed into the least significant 24 bits,</span></span><br><span class="line"><span class="function"><span class="meta">#           in order.</span></span></span><br><span class="line"><span class="function">#   &quot;intensity&quot; - laser <span class="keyword">or</span> pixel intensity.</span></span><br><span class="line"><span class="function">#   &quot;distance&quot;</span></span><br><span class="line"><span class="function"></span></span><br><span class="line"><span class="function"># The channel name should give semantics of the <span class="title">channel</span> <span class="params">(e.g.</span></span></span><br><span class="line"><span class="params"><span class="function"># <span class="string">&quot;intensity&quot;</span> instead of <span class="string">&quot;value&quot;</span>)</span>.</span></span><br><span class="line"><span class="function">string name</span></span><br><span class="line"><span class="function"></span></span><br><span class="line"><span class="function"># The values array should be 1-1 with the elements of the associated</span></span><br><span class="line"><span class="function"># PointCloud.</span></span><br><span class="line"><span class="function">float32[] values</span></span><br></pre></td></tr></table></figure>
+
+
+
+<p>典型应用</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//将数据通过消息发送出去</span></span><br><span class="line">sensor_msgs::PointCloud cloud;</span><br><span class="line">cloud.header.stamp = ros::Time::<span class="built_in">now</span>();</span><br><span class="line">cloud.header.frame_id = <span class="string">&quot;sensor_frame&quot;</span>;<span class="comment">//帧id</span></span><br><span class="line">cloud.points.<span class="built_in">resize</span>(LINE*CIRCLEPT);</span><br><span class="line">cloud.channels.<span class="built_in">resize</span>(<span class="number">2</span>);<span class="comment">//设置增加通道数</span></span><br><span class="line">cloud.channels[<span class="number">0</span>].name = <span class="string">&quot;intensity&quot;</span>;<span class="comment">//增加反射强度信道，并设置其大小，使与点云数量相匹配</span></span><br><span class="line">cloud.channels[<span class="number">0</span>].values.<span class="built_in">resize</span>(LINE*CIRCLEPT);</span><br><span class="line">cloud.channels[<span class="number">1</span>].name = <span class="string">&quot;distance&quot;</span>;<span class="comment">//增加距离信道，并设置其大小，使与点云数量相匹配</span></span><br><span class="line">cloud.channels[<span class="number">1</span>].values.<span class="built_in">resize</span>(LINE*CIRCLEPT);</span><br><span class="line"><span class="type">int</span> i=<span class="number">0</span>;</span><br><span class="line"><span class="keyword">for</span> (<span class="type">int</span> l = <span class="number">0</span>; l &lt; LINE; l++)</span><br><span class="line">	<span class="keyword">for</span> (<span class="type">int</span> c = <span class="number">0</span>; c &lt; CIRCLEPT; c++)</span><br><span class="line">	&#123;</span><br><span class="line">		cloud.points[i].x = mdecoder.mpointcloud[l][c].x;</span><br><span class="line">		cloud.points[i].y = mdecoder.mpointcloud[l][c].y;</span><br><span class="line">		cloud.points[i].z = mdecoder.mpointcloud[l][c].z;</span><br><span class="line">		cloud.channels[<span class="number">0</span>].values[i] = mdecoder.mpointcloud[l][c].r;<span class="comment">//设置反射强度</span></span><br><span class="line">		cloud.channels[<span class="number">1</span>].values[i] = mdecoder.mpointcloud[l][c].d;</span><br><span class="line">		i++;</span><br><span class="line">	&#125;</span><br><span class="line">cloud_pub.<span class="built_in">publish</span>(cloud);</span><br></pre></td></tr></table></figure>
+
+
+
+<h4 id="PointCloud2"><a href="#PointCloud2" class="headerlink" title="PointCloud2"></a>PointCloud2</h4><p>sensor_msgs&#x2F;PointCloud2</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># This message holds a collection of N-dimensional points, which may</span></span><br><span class="line"><span class="comment"># contain additional information such as normals, intensity, etc. The</span></span><br><span class="line"><span class="comment"># point data is stored as a binary blob, its layout described by the</span></span><br><span class="line"><span class="comment"># contents of the &quot;fields&quot; array.</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># The point cloud data may be organized 2d (image-like) or 1d</span></span><br><span class="line"><span class="comment"># (unordered). Point clouds organized as 2d images may be produced by</span></span><br><span class="line"><span class="comment"># camera depth sensors such as stereo or time-of-flight.</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># Time of sensor data acquisition, and the coordinate frame ID (for 3d</span></span><br><span class="line"><span class="comment"># points).</span></span><br><span class="line">Header header</span><br><span class="line"></span><br><span class="line"><span class="comment"># 2D structure of the point cloud. If the cloud is unordered, height is</span></span><br><span class="line"><span class="comment"># 1 and width is the length of the point cloud.</span></span><br><span class="line">uint32 height 	<span class="comment"># height != 1: 有组织的二维点云，通过了解相邻点（例如像素）之间的关系，最近邻操作更加高效</span></span><br><span class="line">uint32 width  	<span class="comment"># point的行数，若height = 1则width为所有点的数量</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># Describes the channels and their layout in the binary data blob.</span></span><br><span class="line">PointField[] fields</span><br><span class="line"></span><br><span class="line"><span class="built_in">bool</span>    is_bigendian <span class="comment"># Is this data bigendian?</span></span><br><span class="line">uint32  point_step   <span class="comment"># Length of a point in bytes</span></span><br><span class="line">uint32  row_step     <span class="comment"># Length of a row in bytes</span></span><br><span class="line"><span class="comment"># row_step = width * point_step 存所有数据（一个数组）的字节</span></span><br><span class="line">uint8[] data         <span class="comment"># Actual point data, size is (row_step*height)</span></span><br><span class="line"></span><br><span class="line"><span class="built_in">bool</span> is_dense        <span class="comment"># True if there are no invalid points</span></span><br></pre></td></tr></table></figure>
+
+<p>big endian &amp; small endian</p>
+<p><img src="https://upload.wikimedia.org/wikipedia/commons/thumb/5/5d/32bit-Endianess.svg/600px-32bit-Endianess.svg.png" alt="img"></p>
+<p>sensor_msgs&#x2F;PointField</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># This message holds the description of one point entry in the</span></span><br><span class="line"><span class="comment"># PointCloud2 message format.</span></span><br><span class="line">uint8 INT8    = <span class="number">1</span> </span><br><span class="line">uint8 UINT8   = <span class="number">2</span> </span><br><span class="line">uint8 INT16   = <span class="number">3</span> </span><br><span class="line">uint8 UINT16  = <span class="number">4</span> </span><br><span class="line">uint8 INT32   = <span class="number">5</span> </span><br><span class="line">uint8 UINT32  = <span class="number">6</span> </span><br><span class="line">uint8 FLOAT32 = <span class="number">7</span> </span><br><span class="line">uint8 FLOAT64 = <span class="number">8</span> </span><br><span class="line"></span><br><span class="line">string name      <span class="comment"># Name of field </span></span><br><span class="line">uint32 offset    <span class="comment"># Offset from start of point struct </span></span><br><span class="line">uint8  datatype  <span class="comment"># Datatype enumeration, see above </span></span><br><span class="line">uint32 count     <span class="comment"># How many elements in the field</span></span><br></pre></td></tr></table></figure>
+
+
+
+<p>典型应用</p>
+<figure class="highlight yaml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br></pre></td><td class="code"><pre><span class="line"><span class="attr">header:</span> </span><br><span class="line">  <span class="attr">seq:</span> <span class="number">1071</span></span><br><span class="line">  <span class="attr">stamp:</span> </span><br><span class="line">    <span class="attr">secs:</span> <span class="number">1521699326</span></span><br><span class="line">    <span class="attr">nsecs:</span> <span class="number">676390000</span></span><br><span class="line">  <span class="attr">frame_id:</span> <span class="string">&quot;velodyne&quot;</span></span><br><span class="line"><span class="attr">height:</span> <span class="number">1</span></span><br><span class="line"><span class="attr">width:</span> <span class="number">66811</span></span><br><span class="line"><span class="attr">fields:</span> </span><br><span class="line">  <span class="bullet">-</span> </span><br><span class="line">    <span class="attr">name:</span> <span class="string">&quot;x&quot;</span></span><br><span class="line">    <span class="attr">offset:</span> <span class="number">0</span></span><br><span class="line">    <span class="attr">datatype:</span> <span class="number">7</span></span><br><span class="line">    <span class="attr">count:</span> <span class="number">1</span></span><br><span class="line">  <span class="bullet">-</span> </span><br><span class="line">    <span class="attr">name:</span> <span class="string">&quot;y&quot;</span></span><br><span class="line">    <span class="attr">offset:</span> <span class="number">4</span></span><br><span class="line">    <span class="attr">datatype:</span> <span class="number">7</span></span><br><span class="line">    <span class="attr">count:</span> <span class="number">1</span></span><br><span class="line">  <span class="bullet">-</span> </span><br><span class="line">    <span class="attr">name:</span> <span class="string">&quot;z&quot;</span></span><br><span class="line">    <span class="attr">offset:</span> <span class="number">8</span></span><br><span class="line">    <span class="attr">datatype:</span> <span class="number">7</span></span><br><span class="line">    <span class="attr">count:</span> <span class="number">1</span></span><br><span class="line">  <span class="bullet">-</span> </span><br><span class="line">    <span class="attr">name:</span> <span class="string">&quot;intensity&quot;</span></span><br><span class="line">    <span class="attr">offset:</span> <span class="number">16</span></span><br><span class="line">    <span class="attr">datatype:</span> <span class="number">7</span></span><br><span class="line">    <span class="attr">count:</span> <span class="number">1</span></span><br><span class="line">  <span class="bullet">-</span> </span><br><span class="line">    <span class="attr">name:</span> <span class="string">&quot;ring&quot;</span></span><br><span class="line">    <span class="attr">offset:</span> <span class="number">20</span></span><br><span class="line">    <span class="attr">datatype:</span> <span class="number">4</span></span><br><span class="line">    <span class="attr">count:</span> <span class="number">1</span></span><br><span class="line"><span class="attr">is_bigendian:</span> <span class="literal">False</span></span><br><span class="line"><span class="attr">point_step:</span> <span class="number">32</span></span><br><span class="line"><span class="string">//</span> <span class="string">FLOAT32(4)</span> <span class="string">+</span> <span class="string">FLOAT32(4)</span> <span class="string">+</span> <span class="string">FLOAT32(4)</span> <span class="string">+</span> <span class="string">FLOAT32(4)</span> <span class="string">+</span> <span class="string">UINT16(2)</span> <span class="string">+</span> <span class="string">EMPTY(10)</span> <span class="string">=</span> <span class="number">20</span></span><br><span class="line"><span class="attr">row_step:</span> <span class="number">2137952</span> <span class="string">//</span> <span class="string">=</span> <span class="number">66811</span> <span class="string">*</span> <span class="number">32</span></span><br><span class="line"><span class="attr">data:</span> [<span class="number">235</span>, <span class="number">171</span>, <span class="number">54</span>, <span class="number">190</span>, <span class="number">53</span>, <span class="number">107</span>, <span class="number">250</span>, <span class="string">...</span></span><br></pre></td></tr></table></figure>
+
+<p>offset:</p>
+<table>
+<thead>
+<tr>
+<th>0</th>
+<th>1</th>
+<th>2</th>
+<th>3</th>
+<th>4</th>
+<th>5</th>
+<th>6</th>
+<th>7</th>
+<th>8</th>
+<th>9</th>
+<th>10</th>
+<th>11</th>
+<th>12</th>
+<th>13</th>
+<th>14</th>
+<th>15</th>
+<th>16</th>
+<th>17</th>
+<th>18</th>
+<th>19</th>
+<th>20</th>
+<th>21</th>
+<th>22</th>
+<th>23</th>
+<th>24 ~31</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>x</td>
+<td>x</td>
+<td>x</td>
+<td>x</td>
+<td>y</td>
+<td>y</td>
+<td>y</td>
+<td>y</td>
+<td>z</td>
+<td>z</td>
+<td>z</td>
+<td>z</td>
+<td>-</td>
+<td>-</td>
+<td>-</td>
+<td>-</td>
+<td>i</td>
+<td>i</td>
+<td>i</td>
+<td>i</td>
+<td>r</td>
+<td>r</td>
+<td>r</td>
+<td>r</td>
+<td>-</td>
+</tr>
+</tbody></table>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;sensor_msgs/PointCloud2.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;sensor_msgs/PointField.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;sensor_msgs/point_cloud2_iterator.h&gt;</span></span></span><br><span class="line"></span><br><span class="line">sensor_msgs::PointCloud2 pcl_msg;</span><br><span class="line">    </span><br><span class="line"><span class="comment">//Modifier to describe what the fields are.</span></span><br><span class="line"><span class="function">sensor_msgs::PointCloud2Modifier <span class="title">modifier</span><span class="params">(pcl_msg)</span></span>;</span><br><span class="line"></span><br><span class="line">modifier.<span class="built_in">setPointCloud2Fields</span>(<span class="number">4</span>,</span><br><span class="line">    <span class="string">&quot;x&quot;</span>, <span class="number">1</span>, sensor_msgs::PointField::FLOAT32,</span><br><span class="line">    <span class="string">&quot;y&quot;</span>, <span class="number">1</span>, sensor_msgs::PointField::FLOAT32,</span><br><span class="line">    <span class="string">&quot;z&quot;</span>, <span class="number">1</span>, sensor_msgs::PointField::FLOAT32,</span><br><span class="line">    <span class="string">&quot;intensity&quot;</span>, <span class="number">1</span>, sensor_msgs::PointField::FLOAT32);</span><br><span class="line"></span><br><span class="line"><span class="comment">//Msg header</span></span><br><span class="line">pcl_msg.header = std_msgs::<span class="built_in">Header</span>();</span><br><span class="line">pcl_msg.header.stamp = ros::Time::<span class="built_in">now</span>();</span><br><span class="line">pcl_msg.header.frame_id = <span class="string">&quot;frame&quot;</span>;</span><br><span class="line"></span><br><span class="line">pcl_msg.height = height;</span><br><span class="line">pcl_msg.width = width;</span><br><span class="line">pcl_msg.is_dense = <span class="literal">true</span>;</span><br><span class="line"></span><br><span class="line"><span class="comment">//Total number of bytes per point</span></span><br><span class="line">pcl_msg.point_step = <span class="number">16</span>;</span><br><span class="line">pcl_msg.row_step = pcl_msg.point_step * pcl_msg.width;</span><br><span class="line">pcl_msg.data.<span class="built_in">resize</span>(pcl_msg.row_step);</span><br><span class="line"></span><br><span class="line"><span class="comment">//Iterators for PointCloud msg</span></span><br><span class="line"><span class="function">sensor_msgs::PointCloud2Iterator&lt;<span class="type">float</span>&gt; <span class="title">iterX</span><span class="params">(pcl_msg, <span class="string">&quot;x&quot;</span>)</span></span>;</span><br><span class="line"><span class="function">sensor_msgs::PointCloud2Iterator&lt;<span class="type">float</span>&gt; <span class="title">iterY</span><span class="params">(pcl_msg, <span class="string">&quot;y&quot;</span>)</span></span>;</span><br><span class="line"><span class="function">sensor_msgs::PointCloud2Iterator&lt;<span class="type">float</span>&gt; <span class="title">iterZ</span><span class="params">(pcl_msg, <span class="string">&quot;z&quot;</span>)</span></span>;</span><br><span class="line"><span class="function">sensor_msgs::PointCloud2Iterator&lt;<span class="type">float</span>&gt; <span class="title">iterIntensity</span><span class="params">(pcl_msg, <span class="string">&quot;intensity&quot;</span>)</span></span>;</span><br><span class="line"></span><br><span class="line"><span class="comment">//iterate over the message and populate the fields.      </span></span><br><span class="line"><span class="keyword">for</span> (<span class="type">int</span> i = <span class="number">0</span>; i &lt; width; i++)</span><br><span class="line">&#123;</span><br><span class="line">  *iterX = <span class="comment">//Your x data</span></span><br><span class="line">  *iterY = <span class="comment">//Your y data</span></span><br><span class="line">  *iterZ = <span class="comment">//Your z data</span></span><br><span class="line">  *iterIntensity = <span class="comment">//Your intensity data</span></span><br><span class="line"></span><br><span class="line">  <span class="comment">// Increment the iterators</span></span><br><span class="line">  ++iterX;</span><br><span class="line">  ++iterY;</span><br><span class="line">  ++iterZ;</span><br><span class="line">  ++iterIntensity;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+    </div>
+
+    
+    
+    
+
+      <footer class="post-footer">
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2024/03/04/MauiTutorial/" rel="prev" title="Maui Winter Tutorial">
+      <i class="fa fa-chevron-left"></i> Maui Winter Tutorial
+    </a></div>
+      <div class="post-nav-item"></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#Lidar%E5%B7%A5%E4%BD%9C%E5%8E%9F%E7%90%86"><span class="nav-number">1.</span> <span class="nav-text">Lidar工作原理</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Lidar%E5%8A%9F%E8%83%BD%E7%89%B9%E7%82%B9"><span class="nav-number">2.</span> <span class="nav-text">Lidar功能特点</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E4%BC%98%E5%8A%BF"><span class="nav-number">2.1.</span> <span class="nav-text">优势</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E5%8A%A3%E5%8A%BF"><span class="nav-number">2.2.</span> <span class="nav-text">劣势</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Lidar%E7%B1%BB%E5%88%AB"><span class="nav-number">3.</span> <span class="nav-text">Lidar类别</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E7%BB%93%E6%9E%84"><span class="nav-number">3.1.</span> <span class="nav-text">结构</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#%E6%9C%BA%E6%A2%B0%E5%BC%8F"><span class="nav-number">3.1.1.</span> <span class="nav-text">机械式</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#%E6%B7%B7%E5%90%88%E5%9B%BA%E6%80%81%E5%BC%8F%EF%BC%88%E8%BE%83%E4%B8%BB%E6%B5%81%EF%BC%89"><span class="nav-number">3.1.2.</span> <span class="nav-text">混合固态式（较主流）</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#%E5%9B%BA%E6%80%81%E5%BC%8F%EF%BC%88%E6%9C%AA%E6%9D%A5%E5%8F%91%E5%B1%95%EF%BC%89"><span class="nav-number">3.1.3.</span> <span class="nav-text">固态式（未来发展）</span></a></li></ol></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E7%BB%B4%E5%BA%A6"><span class="nav-number">3.2.</span> <span class="nav-text">维度</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E4%BD%BF%E7%94%A8%E5%9C%BA%E6%99%AF"><span class="nav-number">3.3.</span> <span class="nav-text">使用场景</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Lidar%E5%8F%82%E6%95%B0"><span class="nav-number">4.</span> <span class="nav-text">Lidar参数</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E6%B3%A2%E9%95%BF"><span class="nav-number">4.1.</span> <span class="nav-text">波长</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E6%B5%8B%E8%B7%9D%E8%83%BD%E5%8A%9B"><span class="nav-number">4.2.</span> <span class="nav-text">测距能力</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E6%B5%8B%E8%B7%9D%E7%B2%BE%E5%BA%A6"><span class="nav-number">4.3.</span> <span class="nav-text">测距精度</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E8%A7%86%E5%9C%BA%E8%A7%92-FOV-Field-of-View"><span class="nav-number">4.4.</span> <span class="nav-text">视场角(FOV, Field of View)</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E8%A7%92%E5%88%86%E8%BE%A8%E7%8E%87"><span class="nav-number">4.5.</span> <span class="nav-text">角分辨率</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E5%B8%A7%E7%8E%87"><span class="nav-number">4.6.</span> <span class="nav-text">帧率</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E7%82%B9%E9%A2%91"><span class="nav-number">4.7.</span> <span class="nav-text">点频</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E7%9B%B2%E5%8C%BA"><span class="nav-number">4.8.</span> <span class="nav-text">盲区</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E4%BA%BA%E7%9C%BC%E5%AE%89%E5%85%A8%E7%BA%A7%E5%88%AB-Laser-class"><span class="nav-number">4.9.</span> <span class="nav-text">人眼安全级别(Laser class)</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E9%98%B2%E6%8A%A4%E7%AD%89%E7%BA%A7"><span class="nav-number">4.10.</span> <span class="nav-text">防护等级</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E5%8A%9F%E7%8E%87"><span class="nav-number">4.11.</span> <span class="nav-text">功率</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#IMU"><span class="nav-number">4.12.</span> <span class="nav-text">IMU</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Tinker%E4%BD%BF%E7%94%A8%E7%9A%84Lidar%E2%80%94%E2%80%94Livox-Mid-360"><span class="nav-number">5.</span> <span class="nav-text">Tinker使用的Lidar——Livox Mid 360</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#LiDAR%E6%95%B0%E6%8D%AE%E5%A4%84%E7%90%86"><span class="nav-number">6.</span> <span class="nav-text">LiDAR数据处理</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#PointCloud"><span class="nav-number">6.1.</span> <span class="nav-text">PointCloud</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#PointCloud2"><span class="nav-number">6.2.</span> <span class="nav-text">PointCloud2</span></a></li></ol></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="Grange"
+      src="/images/avatar.jpg">
+  <p class="site-author-name" itemprop="name">Grange</p>
+  <div class="site-description" itemprop="description">A Duck Watcher In Tsinghua University</div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">3</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+  </nav>
+</div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2024</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Grange</span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Gemini</a> 强力驱动
+  </div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/pisces.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+</body>
+</html>
