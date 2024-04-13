@@ -2,6 +2,15 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   
   <url>
+    <loc>https://grange007.github.io/2024/04/08/%E4%BB%8E%E9%9B%B6%E5%BC%80%E5%A7%8B%E7%9A%84%E6%96%87%E6%A1%A3%E7%BD%91%E7%AB%99%E6%90%AD%E5%BB%BA/</loc>
+    
+    <lastmod>2024-04-13</lastmod>
+    
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  
+  <url>
     <loc>https://grange007.github.io/2024/03/04/MauiTutorial/</loc>
     
     <lastmod>2024-03-04</lastmod>
@@ -12,15 +21,6 @@
   
   <url>
     <loc>https://grange007.github.io/2024/03/04/OverviewOfLidar/</loc>
-    
-    <lastmod>2024-03-04</lastmod>
-    
-    <changefreq>monthly</changefreq>
-    <priority>0.6</priority>
-  </url>
-  
-  <url>
-    <loc>https://grange007.github.io/GuLang/index.html</loc>
     
     <lastmod>2024-03-04</lastmod>
     
@@ -67,7 +67,7 @@
 
   <url>
     <loc>https://grange007.github.io/</loc>
-    <lastmod>2024-03-04</lastmod>
+    <lastmod>2024-04-13</lastmod>
     <changefreq>daily</changefreq>
     <priority>1.0</priority>
   </url>
